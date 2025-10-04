@@ -1,3 +1,4 @@
+import { useState, useRef, useEffect } from 'react';
 import { ArrowButton } from 'src/ui/arrow-button';
 import { Button } from 'src/ui/button';
 import { RadioGroup } from 'src/ui/radio-group';
@@ -6,6 +7,7 @@ import { Separator } from 'src/ui/separator';
 import { Text } from 'src/ui/text';
 import {
 	ArticleStateType,
+	defaultArticleState,
 	fontFamilyOptions,
 	fontSizeOptions,
 	fontColors,
@@ -16,47 +18,88 @@ import {
 import styles from './ArticleParamsForm.module.scss';
 
 type ArticleParamsFormProps = {
-	isOpen: boolean;
-	onButtonClick: () => void;
-	formSettings: ArticleStateType;
-	onFormSettingsChange: (settings: ArticleStateType) => void;
-	onApply: () => void;
+	isMenuOpen: boolean; // Переименовано isOpen → isMenuOpen
+	onToggle: (isMenuOpen: boolean) => void;
+	onApply: (settings: ArticleStateType) => void;
 	onReset: () => void;
-	sidebarRef: React.RefObject<HTMLElement>;
-	arrowButtonRef: React.RefObject<HTMLDivElement>;
+	appliedSettings: ArticleStateType;
 };
 
 export const ArticleParamsForm = ({
-	isOpen,
-	onButtonClick,
-	formSettings,
-	onFormSettingsChange,
+	isMenuOpen, // Переименовано isOpen → isMenuOpen
+	onToggle,
 	onApply,
 	onReset,
-	sidebarRef,
-	arrowButtonRef,
+	appliedSettings,
 }: ArticleParamsFormProps) => {
+	// Локальное состояние формы
+	const [formSettings, setFormSettings] = useState(defaultArticleState);
+
+	// Refs для обработки кликов вне формы
+	const sidebarRef = useRef<HTMLElement>(null);
+	const arrowButtonRef = useRef<HTMLDivElement>(null);
+
+	// Обработчик отправки формы (Применить)
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
-		onApply();
+		onApply(formSettings);
 	};
 
+	// Обработчик сброса формы (Сбросить)
 	const handleReset = (e: React.FormEvent) => {
 		e.preventDefault();
+		setFormSettings(defaultArticleState);
 		onReset();
 	};
+
+	// Обработчик переключения меню
+	const handleToggleMenu = () => {
+		const newIsMenuOpen = !isMenuOpen;
+		onToggle(newIsMenuOpen);
+
+		// При открытии синхронизируем форму с примененными настройками
+		if (newIsMenuOpen) {
+			setFormSettings(appliedSettings);
+		}
+	};
+
+	// Эффект для закрытия по клику вне формы с оптимизацией
+	useEffect(() => {
+		// Если форма закрыта - не навешиваем обработчик
+		if (!isMenuOpen) return;
+
+		const handleClickOutside = (event: MouseEvent) => {
+			if (
+				sidebarRef.current &&
+				arrowButtonRef.current &&
+				!sidebarRef.current.contains(event.target as Node) &&
+				!arrowButtonRef.current.contains(event.target as Node)
+			) {
+				// Закрываем меню и сбрасываем форму к примененным настройкам
+				onToggle(false);
+				setFormSettings(appliedSettings);
+			}
+		};
+
+		document.addEventListener('mousedown', handleClickOutside);
+
+		// Cleanup функция
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside);
+		};
+	}, [isMenuOpen, appliedSettings, onToggle]); // Зависимости эффекта
 
 	return (
 		<>
 			<ArrowButton
-				isOpen={isOpen}
-				onClick={onButtonClick}
+				isOpen={isMenuOpen} // Передаем переименованную переменную
+				onClick={handleToggleMenu}
 				ref={arrowButtonRef}
 			/>
 			<aside
 				ref={sidebarRef}
 				className={`${styles.container} ${
-					isOpen ? styles.container_open : ''
+					isMenuOpen ? styles.container_open : '' // Используем переименованную переменную
 				}`}>
 				<form
 					className={styles.form}
@@ -70,7 +113,7 @@ export const ArticleParamsForm = ({
 					<Select
 						selected={formSettings.fontFamilyOption}
 						onChange={(option) =>
-							onFormSettingsChange({
+							setFormSettings({
 								...formSettings,
 								fontFamilyOption: option,
 							})
@@ -84,7 +127,7 @@ export const ArticleParamsForm = ({
 						name='fontSize'
 						selected={formSettings.fontSizeOption}
 						onChange={(option) =>
-							onFormSettingsChange({
+							setFormSettings({
 								...formSettings,
 								fontSizeOption: option,
 							})
@@ -97,7 +140,7 @@ export const ArticleParamsForm = ({
 					<Select
 						selected={formSettings.fontColor}
 						onChange={(option) =>
-							onFormSettingsChange({
+							setFormSettings({
 								...formSettings,
 								fontColor: option,
 							})
@@ -110,7 +153,7 @@ export const ArticleParamsForm = ({
 					<Select
 						selected={formSettings.backgroundColor}
 						onChange={(option) =>
-							onFormSettingsChange({
+							setFormSettings({
 								...formSettings,
 								backgroundColor: option,
 							})
@@ -123,7 +166,7 @@ export const ArticleParamsForm = ({
 					<Select
 						selected={formSettings.contentWidth}
 						onChange={(option) =>
-							onFormSettingsChange({
+							setFormSettings({
 								...formSettings,
 								contentWidth: option,
 							})
