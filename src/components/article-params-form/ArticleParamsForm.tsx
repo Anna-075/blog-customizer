@@ -18,7 +18,7 @@ import {
 import styles from './ArticleParamsForm.module.scss';
 
 type ArticleParamsFormProps = {
-	isMenuOpen: boolean; // Переименовано isOpen → isMenuOpen
+	isMenuOpen: boolean;
 	onToggle: (isMenuOpen: boolean) => void;
 	onApply: (settings: ArticleStateType) => void;
 	onReset: () => void;
@@ -26,46 +26,38 @@ type ArticleParamsFormProps = {
 };
 
 export const ArticleParamsForm = ({
-	isMenuOpen, // Переименовано isOpen → isMenuOpen
+	isMenuOpen,
 	onToggle,
 	onApply,
 	onReset,
 	appliedSettings,
 }: ArticleParamsFormProps) => {
-	// Локальное состояние формы
 	const [formSettings, setFormSettings] = useState(defaultArticleState);
 
-	// Refs для обработки кликов вне формы
 	const sidebarRef = useRef<HTMLElement>(null);
 	const arrowButtonRef = useRef<HTMLDivElement>(null);
 
-	// Обработчик отправки формы (Применить)
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 		onApply(formSettings);
 	};
 
-	// Обработчик сброса формы (Сбросить)
 	const handleReset = (e: React.FormEvent) => {
 		e.preventDefault();
 		setFormSettings(defaultArticleState);
 		onReset();
 	};
 
-	// Обработчик переключения меню
 	const handleToggleMenu = () => {
 		const newIsMenuOpen = !isMenuOpen;
 		onToggle(newIsMenuOpen);
 
-		// При открытии синхронизируем форму с примененными настройками
 		if (newIsMenuOpen) {
 			setFormSettings(appliedSettings);
 		}
 	};
 
-	// Эффект для закрытия по клику вне формы с оптимизацией
 	useEffect(() => {
-		// Если форма закрыта - не навешиваем обработчик
 		if (!isMenuOpen) return;
 
 		const handleClickOutside = (event: MouseEvent) => {
@@ -75,7 +67,6 @@ export const ArticleParamsForm = ({
 				!sidebarRef.current.contains(event.target as Node) &&
 				!arrowButtonRef.current.contains(event.target as Node)
 			) {
-				// Закрываем меню и сбрасываем форму к примененным настройкам
 				onToggle(false);
 				setFormSettings(appliedSettings);
 			}
@@ -83,23 +74,22 @@ export const ArticleParamsForm = ({
 
 		document.addEventListener('mousedown', handleClickOutside);
 
-		// Cleanup функция
 		return () => {
 			document.removeEventListener('mousedown', handleClickOutside);
 		};
-	}, [isMenuOpen, appliedSettings, onToggle]); // Зависимости эффекта
+	}, [isMenuOpen, appliedSettings, onToggle]);
 
 	return (
 		<>
 			<ArrowButton
-				isOpen={isMenuOpen} // Передаем переименованную переменную
+				isOpen={isMenuOpen}
 				onClick={handleToggleMenu}
 				ref={arrowButtonRef}
 			/>
 			<aside
 				ref={sidebarRef}
 				className={`${styles.container} ${
-					isMenuOpen ? styles.container_open : '' // Используем переименованную переменную
+					isMenuOpen ? styles.container_open : ''
 				}`}>
 				<form
 					className={styles.form}

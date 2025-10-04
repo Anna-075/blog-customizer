@@ -16,19 +16,15 @@ const domNode = document.getElementById('root') as HTMLDivElement;
 const root = createRoot(domNode);
 
 const App = () => {
-	// Переименовано isOpen → isMenuOpen, setIsOpen → setIsMenuOpen
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-	// Оставляем только примененные настройки в App
 	const [appliedSettings, setAppliedSettings] = useState(defaultArticleState);
 
-	// Обработчик применения настроек из формы
 	const handleApplySettings = (settings: ArticleStateType) => {
 		setAppliedSettings(settings);
 		setIsMenuOpen(false);
 	};
 
-	// Обработчик сброса настроек из формы
 	const handleResetSettings = () => {
 		setAppliedSettings(defaultArticleState);
 		setIsMenuOpen(false);
