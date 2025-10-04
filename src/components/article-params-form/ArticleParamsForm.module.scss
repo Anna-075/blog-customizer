@@ -16,7 +16,7 @@
 	display: flex;
 	flex-shrink: 0;
 	flex-direction: column;
-	gap: 30px; // Добавляем отступы между элементами формы
+	gap: 30px;
 	box-sizing: border-box;
 	width: 616px;
 	height: auto;
@@ -30,5 +30,5 @@
 	display: flex;
 	justify-content: space-between;
 	margin-top: auto;
-	padding-top: 30px; // Отступ сверху для кнопок
+	padding-top: 30px;
 }

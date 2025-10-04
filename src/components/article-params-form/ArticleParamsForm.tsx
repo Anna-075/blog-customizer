@@ -22,6 +22,8 @@ type ArticleParamsFormProps = {
 	onFormSettingsChange: (settings: ArticleStateType) => void;
 	onApply: () => void;
 	onReset: () => void;
+	sidebarRef: React.RefObject<HTMLElement>;
+	arrowButtonRef: React.RefObject<HTMLDivElement>;
 };
 
 export const ArticleParamsForm = ({
@@ -31,21 +33,28 @@ export const ArticleParamsForm = ({
 	onFormSettingsChange,
 	onApply,
 	onReset,
+	sidebarRef,
+	arrowButtonRef,
 }: ArticleParamsFormProps) => {
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
-		onApply(); // Вызываем переданную функцию применения
+		onApply();
 	};
 
 	const handleReset = (e: React.FormEvent) => {
 		e.preventDefault();
-		onReset(); // Вызываем переданную функцию сброса
+		onReset();
 	};
 
 	return (
 		<>
-			<ArrowButton isOpen={isOpen} onClick={onButtonClick} />
+			<ArrowButton
+				isOpen={isOpen}
+				onClick={onButtonClick}
+				ref={arrowButtonRef}
+			/>
 			<aside
+				ref={sidebarRef}
 				className={`${styles.container} ${
 					isOpen ? styles.container_open : ''
 				}`}>

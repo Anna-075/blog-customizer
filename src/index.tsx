@@ -13,59 +13,45 @@ const domNode = document.getElementById('root') as HTMLDivElement;
 const root = createRoot(domNode);
 
 const App = () => {
-	// Состояние для открытия/закрытия сайдбара
 	const [isOpen, setIsOpen] = useState(false);
 
-	// Состояние ПРИМЕНЕННЫХ настроек (то, что видно в статье)
 	const [appliedSettings, setAppliedSettings] = useState(defaultArticleState);
 
-	// Состояние ТЕКУЩИХ настроек в форме (которые еще не применены)
 	const [formSettings, setFormSettings] = useState(defaultArticleState);
 
-	// Ref для основного контейнера
-	const mainRef = useRef<HTMLElement>(null);
+	const sidebarRef = useRef<HTMLElement>(null);
+	const arrowButtonRef = useRef<HTMLDivElement>(null);
 
-	// Функция для применения настроек (нажатие "Применить")
 	const handleApplySettings = () => {
-		// Применяем formSettings к appliedSettings
 		setAppliedSettings(formSettings);
-		setIsOpen(false); // Закрываем панель после применения
+		setIsOpen(false);
 	};
 
-	// Функция для сброса настроек (нажатие "Сбросить")
 	const handleResetSettings = () => {
-		// Сбрасываем formSettings к начальным настройкам (defaultArticleState)
 		setFormSettings(defaultArticleState);
-		// ПРИМЕНЯЕМ начальные настройки к статье
 		setAppliedSettings(defaultArticleState);
-		setIsOpen(false); // Закрываем панель после сброса
+		setIsOpen(false);
 	};
 
-	// Функция для открытия/закрытия панели
 	const handleTogglePanel = () => {
 		const newIsOpen = !isOpen;
 		setIsOpen(newIsOpen);
 
-		// При открытии синхронизируем formSettings с appliedSettings
 		if (newIsOpen) {
 			setFormSettings(appliedSettings);
 		}
 	};
 
-	// Обработчик клика вне панели
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
 			if (
 				isOpen &&
-				mainRef.current &&
-				!mainRef.current.contains(event.target as Node) &&
-				// Проверяем, что клик не по стрелочной кнопке
-				!(event.target as Element).closest(
-					'[role="button"][aria-label*="формы параметров статьи"]'
-				)
+				sidebarRef.current &&
+				arrowButtonRef.current &&
+				!sidebarRef.current.contains(event.target as Node) &&
+				!arrowButtonRef.current.contains(event.target as Node)
 			) {
 				setIsOpen(false);
-				// При закрытии сбрасываем форму к примененным настройкам
 				setFormSettings(appliedSettings);
 			}
 		};
@@ -78,11 +64,9 @@ const App = () => {
 
 	return (
 		<main
-			ref={mainRef}
 			className={clsx(styles.main)}
 			style={
 				{
-					// Используем ТОЛЬКО appliedSettings для CSS-переменных
 					'--font-family': appliedSettings.fontFamilyOption.value,
 					'--font-size': appliedSettings.fontSizeOption.value,
 					'--font-color': appliedSettings.fontColor.value,
@@ -93,10 +77,12 @@ const App = () => {
 			<ArticleParamsForm
 				isOpen={isOpen}
 				onButtonClick={handleTogglePanel}
-				formSettings={formSettings} // Передаем текущие настройки формы
-				onFormSettingsChange={setFormSettings} // Функция для изменения настроек формы
-				onApply={handleApplySettings} // Функция для применения настроек
-				onReset={handleResetSettings} // Функция для сброса формы
+				formSettings={formSettings}
+				onFormSettingsChange={setFormSettings}
+				onApply={handleApplySettings}
+				onReset={handleResetSettings}
+				sidebarRef={sidebarRef}
+				arrowButtonRef={arrowButtonRef}
 			/>
 			<Article />
 		</main>
