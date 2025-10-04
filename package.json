@@ -69,6 +69,8 @@
 		"test": "npm run stylelint:fix && npm run lint && npm run format",
 		"test:install": "npx playwright install",
 		"pretest": "npm run test:install",
+		"install:playwright": "npx playwright install",
+		"postinstall": "npm run install:playwright",
 		"prepare": "husky install",
 		"commit": "npm run test && cz",
 		"storybook": "storybook dev -p 6006",
